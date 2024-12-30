@@ -1,34 +1,29 @@
-# Traffic Accident Analyzer POC
+# SafeRoad Taipei POC
 
-## 簡介
-Traffic Accident Analyzer 是一個基於 Vue.js 和 Google Maps API 的前端應用。用戶可以輸入目的地，系統將分析該位置周邊的交通事故風險，並提供相關預測結果。
-
-## 功能
-- 顯示 Google 地圖並支持用戶交互。
-- 接收用戶輸入的經緯度或目的地。
-- 與後端整合，使用歷史數據進行交通事故風險分析。
+## Introduction
+SafeRoad is a front-end application built with Vue.js and the Google Maps API. Users can input their destination, and the system analyzes the traffic accident risks around the location according to the model trained on taipei traffic accident dataset.
 
 ---
 
-## 環境需求
-- [Node.js](https://nodejs.org/) (建議安裝 LTS 版本)
+## Environment Requirements
+- [Node.js](https://nodejs.org/) (LTS version recommended)
 
 ---
 
-## 安裝與運行步驟
+## Installation and Running Steps
 
-### 1. 複製專案
+### 1. Clone the Repository
 ```bash
 git clone <repository-url>
 cd traffic-accident-analyzer-poc
 ```
 
-### 2. 安裝依賴
+### 2. Install Dependencies
 ```bash
 npm install
 ```
 
-### 3. 運行
+### 3. Run 🚙
 ```bash
 npm run serve
 ```
