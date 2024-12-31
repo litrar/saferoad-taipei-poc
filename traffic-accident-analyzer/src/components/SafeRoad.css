@@ -1,0 +1,124 @@
+.fixed-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  background: url('../assets/images-4.jpg') repeat;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000; 
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
+}
+
+.fixed-header h1 {
+  font-size: 2.75rem; 
+  font-weight: bold; 
+  /* color: #000000;  */
+  color: #FFFFFF; 
+
+}
+
+.spacer {
+  height: 80px; 
+}
+
+
+#map {
+    border: 5px solid powderblue;
+    margin-block: 20px;
+    height: 500px;
+    width: 80%;
+    margin-top: 0 auto;
+    position: relative; 
+  }  
+  #map,
+  .steps-container {
+    margin: 0 auto;
+    width: 80%; 
+  }
+  
+  h3 {
+    margin: 0 0 10px 0;
+    text-align: left;
+    font-size: 1.5em;
+  }
+  
+  ul {
+    list-style: none;
+    margin: 0; 
+    padding: 0;
+  }
+  
+  .step-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #e6f7ff;
+    border-radius: 8px; 
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
+  }
+  
+  .step-item:hover {
+    background-color: #cceeff;
+  }
+  
+  .step-index {
+    font-weight: bold;
+    margin-right: 5px;
+  }
+  
+  li {
+    margin-bottom: 10px;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+  }
+  
+  li::before {
+    content: "🚗";
+    margin-right: 10px;
+    font-size: 18px;
+  }
+  
+  .destination-input {
+    margin-left: 20px;
+    padding: 10px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    width: 300px;
+    font-size: 16px;
+    outline: none;
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .destination-input:focus {
+    border-color: paleturquoise;
+    box-shadow: 0 0 2px rgba(0, 123, 255, 0.5);
+  }
+  
+  .route-button {
+    margin-left: 20px;
+    padding: 10px 20px;
+    background-color: #007bFF;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+  
+  .route-button:hover {
+    background-color: #0056b3;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  }
+  
+  .route-button:active {
+    background-color: #004085;
+  }
+  

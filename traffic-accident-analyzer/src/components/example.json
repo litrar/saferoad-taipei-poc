@@ -1,0 +1,32 @@
+{
+    "route": {
+      "bounds": { "northeast": { "lat": 25.035, "lng": 121.570 }, "southwest": { "lat": 24.995, "lng": 121.545 } },
+      "legs": [
+        {
+          "steps": [
+            {
+              "polyline": { "points": "encoded_polyline_step_1" }
+            },
+            {
+              "polyline": { "points": "encoded_polyline_step_2" }
+            }
+          ]
+        }
+      ]
+    },
+    "segmentRisks": [
+      {
+        "start": { "lat": 25.033, "lng": 121.565 },
+        "end": { "lat": 25.030, "lng": 121.560 },
+        "risk_score": 0.8,
+        "description": "此路段交通事故發生頻率較高"
+      },
+      {
+        "start": { "lat": 25.030, "lng": 121.560 },
+        "end": { "lat": 25.028, "lng": 121.558 },
+        "risk_score": 0.4,
+        "description": "此路段交通事故發生頻率中等"
+      }
+    ]
+  }
+  

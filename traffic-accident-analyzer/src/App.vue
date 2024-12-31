@@ -1,6 +1,5 @@
 <template>
   <div id="app">
-    <h1>SafeRoad Taipei</h1>
     <GoogleMap />
   </div>
 </template>
