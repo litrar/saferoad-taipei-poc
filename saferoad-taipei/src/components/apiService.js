@@ -1,6 +1,6 @@
 // apiService.js
 export async function fetchRoute(sourceLat, sourceLng, destLat, destLng) {
-    const apiUrl = "https://34d0-211-76-56-30.ngrok-free.app/route";
+    const apiUrl = "https://a9fd-211-76-56-30.ngrok-free.app/route";
     const params = {
       source_lat: sourceLat,
       source_long: sourceLng,
