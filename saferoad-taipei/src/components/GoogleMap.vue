@@ -1,34 +1,52 @@
 <template>
-    <div>
-      <header class="fixed-header">
-        <h1>SafeRoad Taipei</h1>
-      </header>
-      <div class="spacer"></div>
-      <div id="map"></div>
-      <div style="margin-top: 20px;">
-        <label>目標地點：</label>
-        <input
-          v-model="destination"
-          @keyup.enter="calculateRoute"
-          placeholder="輸入目的地"
-          class="destination-input"
-        />
-        <button @click="calculateRoute" class="route-button">規劃路徑</button>
-      </div>
-      <div v-if="steps.length" class="steps-container" style="margin-top: 40px;">
-        <ul>
-          <li
-            v-for="(step, index) in steps"
-            :key="index"
-            class="step-item"
-          >
-            <span class="step-index">步驟 {{ index + 1 }}:</span> {{ step }}
-          </li>
-        </ul>
+  <div>
+    <header class="fixed-header">
+      <h1>SafeRoad Taipei</h1>
+    </header>
+    <div class="spacer"></div>
+    <div id="map"></div>
+    <div style="margin-top: 20px;">
+      <label>目標地點：</label>
+      <input
+        v-model="destination"
+        @keyup.enter="calculateRoute"
+        placeholder="輸入目的地"
+        class="destination-input"
+      />
+      <button @click="calculateRoute" class="route-button" :disabled="isLoading">
+        規劃路徑
+      </button>
+    </div>
+    <div v-if="isLoading" class="progress-container">
+      <div
+        v-for="(step, index) in progressSteps"
+        :key="index"
+        class="progress-step color: #000000"
+        :class="{ active: index <= currentProgressStep }"
+      >
+        {{ step }}
+        <div v-if="index === currentProgressStep" class="arrow">
+          →
+        </div>
       </div>
     </div>
-  </template>
-    
+    <div v-if="steps.length" class="steps-container" style="margin-top: 40px;">
+      <ul>
+        <li
+          v-for="(step, index) in steps"
+          :key="index"
+          class="step-item"
+        >
+          <span class="step-index">步驟 {{ index + 1 }}:</span> {{ step }}
+        </li>
+      </ul>
+    </div>
+
+    <div v-if="isLoading" class="loading-overlay">
+      <div class="spinner"></div>
+    </div>
+  </div>
+</template>
   
   <script>
 import { fetchRoute } from './apiService';  
@@ -40,6 +58,14 @@ export default {
       destination: "",
       steps: [],
       directionsRenderer: null,
+      isLoading: false,
+      progressSteps: [
+        "解析目標地點",
+        "分析行程",
+        "顯示導航步驟",
+        "完成！",
+      ],
+      currentProgressStep: -1,
     };
   },
   methods: {
@@ -71,9 +97,16 @@ export default {
       return;
     }
     this.map = new google.maps.Map(mapElement, {
-      center: { lat: 24.988, lng: 121.575 },
+      center: { lat: 24.98747, lng: 121.5764 },
       zoom: 18,
     });
+
+    new google.maps.Marker({
+            position: { lat: 24.98747, lng: 121.5764 },
+            map: this.map,
+            title: "您的位置",
+          });
+
 
     this.directionsRenderer = new google.maps.DirectionsRenderer({
       suppressMarkers: false,
@@ -102,106 +135,158 @@ export default {
     }
   },
   async calculateRoute() {
-		if (!this.destination) {
-		alert("請輸入目的地！");
-		return;
-		}
+    if (!this.destination) {
+      alert("請輸入目的地！");
+      return;
+    }
 
-		navigator.geolocation.getCurrentPosition(
-		async (position) => {
-			const sourceLat = position.coords.latitude;
-			const sourceLng = position.coords.longitude;
+    this.isLoading = true;
+    this.currentProgressStep = 0;
 
-			try {
-      const destinationCoords = await this.getCoordinatesFromAddress(this.destination);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+
+        const sourceLat = position.coords.latitude;
+        const sourceLng = position.coords.longitude;
+
+
+        try {
+          this.updateProgress(1); 
+          const destinationCoords = await this.getCoordinatesFromAddress(this.destination);
+
           if (!destinationCoords) {
             alert("目標地點經緯度轉換錯誤");
+            this.resetProgress();
             return;
           }
 
-      const destLat = destinationCoords.lat;
-      const destLng = destinationCoords.lng;
-			const data = await fetchRoute(sourceLat, sourceLng, destLat, destLng);
-			
-			if (!data || !data.route) {
-				alert("fetchRoute出錯，無法獲取有效的路徑資訊！");
-				return;
-			}
+          const destLat = destinationCoords.lat;
+          const destLng = destinationCoords.lng;
 
-			this.updateMapWithRoute(data.route);
-			this.displaySteps(data.route.legs[0]);
-			} catch (error) {
-			console.error("Error calculating route:", error);
-			alert("路徑計算失敗，請稍後再試。");
-			}
-		},
-		() => {
-			alert("無法獲取當前位置！");
-		}
-		);
-  },
-  async getCoordinatesFromAddress(address) {
-      const geocoder = new google.maps.Geocoder();
+          this.updateProgress(2); 
+          const data = await fetchRoute(sourceLat, sourceLng, destLat, destLng);
 
-      return new Promise((resolve) => {
-        geocoder.geocode({ address }, (results, status) => {
-          if (status === "OK" && results[0]) {
-            const location = results[0].geometry.location;
-            resolve({ lat: location.lat(), lng: location.lng() });
-          } else {
-            console.error(`Geocoding failed: ${status}`);
-            resolve(null);
+          if (!data || !data.route || !data.segmentRisks) {
+            alert("無法獲取有效的路徑或風險資訊！");
+            this.resetProgress();
+            return;
           }
-        });
-      });
-    },
 
-  updateMapWithRoute(route) {
+          this.updateProgress(3); 
+          this.updateMapWithRoute(data.route, data.segmentRisks);
+
+          this.displaySteps(data.route.legs[0]);
+          this.updateProgress(4); 
+        } catch (error) {
+          console.error("Error calculating route:", error);
+          alert("路徑計算失敗，請稍後再試。");
+        } finally {
+          this.isLoading = false;
+        }
+      },
+      () => {
+        alert("無法獲取當前位置！");
+        this.resetProgress();
+      }
+    );
+  },
+
+
+  updateProgress(step) {
+    this.currentProgressStep = step;
+  },
+
+  resetProgress() {
+    this.isLoading = false;
+    this.currentProgressStep = -1;
+  },
+
+
+  async getCoordinatesFromAddress(address) {
+    const geocoder = new google.maps.Geocoder();
+    return new Promise((resolve) => {
+      geocoder.geocode({ address }, (results, status) => {
+        if (status === "OK" && results[0]) {
+          const location = results[0].geometry.location;
+          resolve({ lat: location.lat(), lng: location.lng() });
+        } else {
+          resolve(null);
+        }
+      });
+    });
+  },
+
+
+  updateMapWithRoute(route, segmentRisks) {
   const bounds = new google.maps.LatLngBounds(
     new google.maps.LatLng(route.bounds.southwest),
     new google.maps.LatLng(route.bounds.northeast)
   );
 
-  if (this.routePolylines) {
-    this.routePolylines.forEach(polyline => polyline.setMap(null));
-  }
-  this.routePolylines = [];
-
   this.map.fitBounds(bounds);
 
-  // const getRiskColor = (score) => {
-  //   if (score < 0.3) return "#008000"; // 綠色
-  //   if (score < 0.6) return "#FFFF00"; // 黃色
-  //   return "#FF0000"; // 紅色
-  // };
+  const getRiskColor = (score) => {
+    if (score < 0.3) return "#008000"; // 綠
+    if (score < 0.6) return "#FFFF00"; // 黃
+    return "#FF0000"; // 紅
+  };
 
   const steps = route.legs[0].steps;
+
+  const infoWindow = new google.maps.InfoWindow(); 
+
   steps.forEach((step) => {
     const decodedPath = google.maps.geometry.encoding.decodePath(step.polyline.points);
+
+    let riskColor = "#0000FF"; // 預設藍
+    let riskData = null;
+
+    for (const risk of segmentRisks) {
+      const startMatch = google.maps.geometry.spherical.computeDistanceBetween(
+        new google.maps.LatLng(risk.start.lat, risk.start.lng),
+        decodedPath[0]
+      ) < 10;
+
+      const endMatch = google.maps.geometry.spherical.computeDistanceBetween(
+        new google.maps.LatLng(risk.end.lat, risk.end.lng),
+        decodedPath[decodedPath.length - 1]
+      ) < 10;
+
+      if (startMatch && endMatch) {
+        riskColor = getRiskColor(risk.risk_score);
+        riskData = risk; 
+        break;
+      }
+    }
+
     const polyline = new google.maps.Polyline({
       path: decodedPath,
       geodesic: true,
-      strokeColor: "#F89880",
+      strokeColor: riskColor,
       strokeOpacity: 1.0,
       strokeWeight: 5,
-      icons: [
-        {
-          icon: {
-            path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-            scale: 5, 
-            strokeWeight: 5,
-            strokeColor: '#FF5733',
-            fillColor: '#097969',
-          },
-          offset: '0%', 
-          repeat: '400px' 
-        },
-      ],
       map: this.map,
     });
-    this.routePolylines.push(polyline);
+
+    if (riskData) {
+      polyline.addListener("mouseover", () => {
+        infoWindow.setContent(`
+          <div>
+            <strong>風險分數:</strong> ${riskData.risk_score.toFixed(2)}<br>
+            <strong>描述:</strong> ${riskData.description}
+          </div>
+        `);
+        infoWindow.setPosition(decodedPath[Math.floor(decodedPath.length / 2)]); // 設定中間點位置
+        infoWindow.open(this.map);
+      });
+
+      polyline.addListener("mouseout", () => {
+        infoWindow.close();
+      });
+    }
   });
   },
+
 
   displaySteps(leg) {
     this.steps = leg.steps.map((step) =>
