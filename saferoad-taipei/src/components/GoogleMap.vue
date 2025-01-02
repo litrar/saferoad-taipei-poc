@@ -101,11 +101,11 @@ export default {
       zoom: 18,
     });
 
-    new google.maps.Marker({
-            position: { lat: 24.98747, lng: 121.5764 },
-            map: this.map,
-            title: "您的位置",
-          });
+    // new google.maps.Marker({
+    //         position: { lat: 24.98747, lng: 121.5764 },
+    //         map: this.map,
+    //         title: "您的位置",
+    //       });
 
 
     this.directionsRenderer = new google.maps.DirectionsRenderer({
