@@ -97,15 +97,9 @@ export default {
       return;
     }
     this.map = new google.maps.Map(mapElement, {
-      center: { lat: 24.98747, lng: 121.5764 },
+      // center: { lat: 24.98747, lng: 121.5764 },
       zoom: 18,
     });
-
-    // new google.maps.Marker({
-    //         position: { lat: 24.98747, lng: 121.5764 },
-    //         map: this.map,
-    //         title: "您的位置",
-    //       });
 
 
     this.directionsRenderer = new google.maps.DirectionsRenderer({
