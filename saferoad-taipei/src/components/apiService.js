@@ -1,6 +1,6 @@
 // apiService.js
 export async function fetchRoute(sourceLat, sourceLng, destLat, destLng) {
-    const apiUrl = "api/route";
+    const apiUrl = "https://35.209.156.165/route";
     const params = {
       source_lat: sourceLat,
       source_long: sourceLng,
