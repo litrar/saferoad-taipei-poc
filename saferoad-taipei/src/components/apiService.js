@@ -1,5 +1,5 @@
 export async function fetchRoute(sourceLat, sourceLng, destLat, destLng) {
-    const apiUrl = "https://bbq.nccumisoj.online/route";
+  const apiUrl = "/api/route";
     const params = {
       source_lat: sourceLat,
       source_long: sourceLng,
